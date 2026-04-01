@@ -1,16 +1,21 @@
 doctype html
-html
-	head
-		meta(charset='UTF-8')/
-		meta(name='viewport' content='width=device-width, initial-scale=1, user-scalable=no')/
-		title URL shortener
-		link(rel='stylesheet' type='text/css' href='/main.css')/
-	body
-		div(class='container')
-			div(class='inputContainer')
-				input(type='text' id='input_url' placeholder='https://example.com/')
-				button(id='submit_button' disabled) Shorten
-				div(id='result')
-			article
-				:commonmark
-		script(type='application/javascript' src='/app.js')
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title URL Shortener
+    link(rel="stylesheet", href="/main.css")
+  body
+    .app
+      header
+        h1 URL Shortener
+        p Shorten your long URLs into tiny ones!
+      main
+        .shortener
+          input#input_url(type="url", placeholder="Enter your URL here...")
+          button#submit_button(disabled) Shorten
+          #result
+          button#copy_button(style="display:none") Copy
+      footer
+        p Made with ❤️
+    script(src="/app.js")

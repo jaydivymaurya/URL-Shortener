@@ -3,12 +3,26 @@
 const input = document.getElementById('input_url');
 const submit = document.getElementById('submit_button');
 const result = document.getElementById('result');
+const copy_button = document.getElementById('copy_button');
 
-const copy = (elem => str =>
-	(original => (elem.value = str,
-		elem.select(),
-		document.execCommand('copy'),
-		elem.value = original))(elem.value))(input);
+const copyToClipboard = (text) => {
+	if (navigator.clipboard) {
+		navigator.clipboard.writeText(text).then(() => {
+			copy_button.textContent = 'Copied!';
+			setTimeout(() => copy_button.textContent = 'Copy', 2000);
+		});
+	} else {
+		// Fallback for older browsers
+		const textArea = document.createElement('textarea');
+		textArea.value = text;
+		document.body.appendChild(textArea);
+		textArea.select();
+		document.execCommand('copy');
+		document.body.removeChild(textArea);
+		copy_button.textContent = 'Copied!';
+		setTimeout(() => copy_button.textContent = 'Copy', 2000);
+	}
+};
 
 const shorten = url => fetch('/', {
 	body: url,
@@ -37,18 +51,20 @@ const dom = {
 			result.textContent = '',
 			result.style.color = '',
 			submit.textContent = 'Shorten',
-			submit.disabled = true),
+			submit.disabled = true,
+			copy_button.style.display = 'none'),
 	error: (err) =>
 		(result.textContent = err.name + ': ' + err.message,
 			result.style.color = 'red',
-			submit.textContent = 'Shorten'),
+			submit.textContent = 'Shorten',
+			copy_button.style.display = 'none'),
 	unerror: () =>
 		(result.textContent = '',
 			result.style.color = ''),
 	result: (str) =>
 		(result.textContent = str,
 			result.style.color = '',
-			submit.textContent = 'Copy')
+			copy_button.style.display = 'inline-block')
 };
 
 input.addEventListener('input', () =>
@@ -59,9 +75,8 @@ input.addEventListener('input', () =>
 			: dom.error(valid.error)))(validate(input.value)));
 
 submit.addEventListener('click', () =>
-	submit.textContent === 'Shorten'
-		? shorten(input.value)
-			.then(id => dom.result(location.href + id))
-			.catch(dom.error)
-		: (copy(result.textContent),
-			dom.clear()));
+	shorten(input.value)
+		.then(id => dom.result(location.origin + '/' + id))
+		.catch(dom.error));
+
+copy_button.addEventListener('click', () => copyToClipboard(result.textContent));
